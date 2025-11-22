@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>WIC 재정·재무 대시보드 v1.1</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    body { margin:0; padding:0; background:#f5f5f5; }
+    .app { max-width:1200px; margin:0 auto; padding:16px; }
+    h1 { font-size:20px; margin-bottom:4px; }
+    .sub { font-size:12px; color:#555; margin-bottom:12px; }
+    .card {
+      background:#fff; border-radius:10px; padding:12px; margin-bottom:10px;
+      box-shadow:0 1px 3px rgba(0,0,0,0.05);
+    }
+    .card-title { font-size:14px; font-weight:600; margin-bottom:8px; }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+    .grid-2 { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+    label { font-size:11px; display:block; margin-bottom:2px; }
+    input,select,button { font-size:12px; }
+    input[type="text"],input[type="number"],input[type="date"],select{
+      width:100%; padding:6px 8px; border-radius:6px; border:1px solid #ccc;
+    }
+    .btn { padding:6px 10px; border-radius:6px; border:none; cursor:pointer; font-size:12px; white-space:nowrap; }
+    .btn-primary { background:#2563eb; color:#fff; }
+    .btn-gray { background:#e5e7eb; color:#111827; }
+    .btn-danger { background:#dc2626; color:#fff; }
+    .btn-row { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+    .kpi-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+    .kpi {
+      background:#f9fafb; border-radius:10px; padding:8px 10px;
+      border:1px solid #e5e7eb;
+    }
+    .kpi-label { font-size:11px; color:#6b7280; }
+    .kpi-value { font-size:14px; font-weight:600; margin-top:3px; }
+    .kpi-sub { font-size:10px; color:#9ca3af; margin-top:2px; }
+    table { width:100%; border-collapse:collapse; font-size:11px; }
+    th,td { border-bottom:1px solid #e5e7eb; padding:5px 4px; text-align:left; }
+    th { background:#f3f4f6; font-weight:600; }
+    .right { text-align:right; }
+    .badge {
+      display:inline-block; padding:2px 6px; border-radius:999px;
+      font-size:10px; border:1px solid #d1d5db; background:#f9fafb;
+    }
+    .badge-income { border-color:#16a34a; color:#166534; }
+    .badge-expense { border-color:#dc2626; color:#b91c1c; }
+    .badge-open { border-color:#f97316; color:#c2410c; }
+    .badge-done { border-color:#4b5563; color:#111827; }
+    .small { font-size:10px; color:#6b7280; margin-top:4px; }
+    .log {
+      width:100%; min-height:60px; font-size:11px; padding:6px 8px;
+      border-radius:6px; border:1px solid #d1d5db; background:#f9fafb; white-space:pre-wrap;
+    }
+    canvas { width:100% !important; height:220px !important; }
+    @media (max-width:1000px){
+      .grid-4 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .kpi-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .grid-3 { grid-template-columns:1fr; }
+      .grid-2 { grid-template-columns:1fr; }
+    }
+    @media (max-width:600px){
+      .grid-4,.kpi-grid { grid-template-columns:1fr; }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="app">
+  <h1>WIC 재정·재무 대시보드 v1.1</h1>
+  <div class="sub">거래 입력 → 집계 → 차트 시각화 한 화면 통합.</div>
+
+  <div class="card">
+    <div class="card-title">① 기간/필터</div>
+    <div class="grid-4">
+      <div><label>시작 날짜</label><input type="date" id="startDateFilter"></div>
+      <div><label>종료 날짜</label><input type="date" id="endDateFilter"></div>
+      <div><label>거래처</label><select id="clientFilter"><option value="">전체</option></select></div>
+      <div><label>구분</label><select id="typeFilter"><option value="">전체</option><option value="income">수입</option><option value="expense">지출</option></select></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="applyFilterBtn">조회/필터 적용</button>
+      <button class="btn btn-gray" id="clearFilterBtn">필터 초기화</button>
+      <button class="btn btn-gray" id="sampleTestBtn">샘플 데이터 불러오기</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">② 핵심 지표(KPI)</div>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">총 수입</div><div class="kpi-value" id="kpiTotalIncome">0 원</div></div>
+      <div class="kpi"><div class="kpi-label">총 지출</div><div class="kpi-value" id="kpiTotalExpense">0 원</div></div>
+      <div class="kpi"><div class="kpi-label">순이익</div><div class="kpi-value" id="kpiNetProfit">0 원</div></div>
+      <div class="kpi"><div class="kpi-label">미수·미지급</div><div class="kpi-value" id="kpiOpen">0 / 0</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">③ 시각화 차트</div>
+    <div class="grid-3">
+      <div><div class="small">월별 수입/지출</div><canvas id="chartIncomeExpense"></canvas></div>
+      <div><div class="small">지출 비중</div><canvas id="chartExpenseCategory"></canvas></div>
+      <div><div class="small">누적 잔액</div><canvas id="chartCashFlow"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">④ 거래 입력/목록</div>
+    <div class="grid-2">
+      <div>
+        <div class="grid-4">
+          <div><label>날짜</label><input type="date" id="dateInput"></div>
+          <div><label>거래처</label><input type="text" id="clientInput"></div>
+          <div><label>구분</label><select id="typeInput"><option value="income">수입</option><option value="expense">지출</option></select></div>
+          <div><label>금액(원)</label><input type="number" id="amountInput" min="0"></div>
+          <div><label>정산</label><select id="statusInput"><option value="done">완료</option><option value="receivable">미수금</option><option value="payable">미지급금</option></select></div>
+          <div><label>수단</label><select id="methodInput"><option value="">선택 없음</option><option value="bank">계좌</option><option value="card">카드</option><option value="cash">현금</option></select></div>
+          <div><label>분류</label><select id="categoryInput"><option value="">선택 없음</option><option value="report-sale">보고서 판매</option><option value="service">서비스</option><option value="salary">급여</option><option value="rent">임대료</option><option value="tax">세금</option></select></div>
+          <div><label>내역</label><input type="text" id="descInput"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="addBtn">거래 추가</button>
+          <button class="btn btn-gray" id="resetFormBtn">입력 초기화</button>
+          <button class="btn btn-danger" id="clearAllBtn">모두 삭제</button>
+        </div>
+      </div>
+      <div>
+        <table>
+          <thead><tr><th>날짜</th><th>거래처</th><th>구분</th><th class="right">금액</th><th>정산</th><th>분류</th><th>내역</th><th>관리</th></tr></thead>
+          <tbody id="txTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">⑤ 로그/정합성</div>
+    <div class="log" id="logArea"></div>
+  </div>
+</div>
+
+<script>
+let transactions=[];
+const filters={startDate:"",endDate:"",client:"",type:""};
+let chartIncomeExpense=null,chartExpenseCategory=null,chartCashFlow=null;
+
+function formatNumber(n){return n.toLocaleString("ko-KR");}
+function parseDate(str){if(!str)return null;const p=str.split("-");return new Date(p[0],p[1]-1,p[2]);}
+function todayStr(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function log(msg){const a=document.getElementById("logArea");a.textContent+="["+new Date().toLocaleTimeString("ko-KR",{hour12:false})+"] "+msg+"\\n";a.scrollTop=a.scrollHeight;}
+
+function getFilteredTransactions(){
+  const s=parseDate(filters.startDate),e=parseDate(filters.endDate);
+  return transactions.filter(tx=>{
+    const d=parseDate(tx.date);
+    if(s&&d&&d<s)return false;
+    if(e&&d&&d>e)return false;
+    if(filters.client&&tx.client!==filters.client)return false;
+    if(filters.type&&tx.type!==filters.type)return false;
+    return true;
+  });
+}
+
+function updateClientFilterOptions(){
+  const sel=document.getElementById("clientFilter");
+  const cur=sel.value;
+  const set=new Set(transactions.map(t=>t.client).filter(v=>v));
+  sel.innerHTML="<option value=''>전체</option>";
+  [...set].sort().forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;sel.appendChild(o);});
+  if(cur)sel.value=cur;
+}
+
+function applyFilters(){
+  filters.startDate=document.getElementById("startDateFilter").value;
+  filters.endDate=document.getElementById("endDateFilter").value;
+  filters.client=document.getElementById("clientFilter").value;
+  filters.type=document.getElementById("typeFilter").value;
+  renderAll(); log("필터 적용");
+}
+
+function clearFilters(){
+  filters.startDate=filters.endDate=filters.client=filters.type="";
+  document.getElementById("startDateFilter").value="";
+  document.getElementById("endDateFilter").value="";
+  document.getElementById("clientFilter").value="";
+  document.getElementById("typeFilter").value="";
+  renderAll(); log("필터 초기화");
+}
+
+function renderKPI(){
+  const list=getFilteredTransactions();
+  let i=0,e=0,r=0,p=0;
+  list.forEach(tx=>{
+    if(tx.type==="income"){i+=tx.amount;if(tx.status==="receivable")r+=tx.amount;}
+    else{e+=tx.amount;if(tx.status==="payable")p+=tx.amount;}
+  });
+  document.getElementById("kpiTotalIncome").textContent=formatNumber(i)+" 원";
+  document.getElementById("kpiTotalExpense").textContent=formatNumber(e)+" 원";
+  document.getElementById("kpiNetProfit").textContent=formatNumber(i-e)+" 원";
+  document.getElementById("kpiOpen").textContent="미수 "+formatNumber(r)+" / 미지급 "+formatNumber(p);
+}
+
+function renderTable(){
+  const tb=document.getElementById("txTbody");
+  tb.innerHTML="";
+  const list=getFilteredTransactions();
+  if(list.length===0){
+    const tr=document.createElement("tr");const td=document.createElement("td");
+    td.colSpan=8;td.textContent="표시할 거래 없음";td.className="small";tr.appendChild(td);
+    tb.appendChild(tr);return;
+  }
+  list.sort((a,b)=>a.date.localeCompare(b.date)).forEach(tx=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${tx.date}</td>
+      <td>${tx.client}</td>
+      <td><span class="badge ${tx.type==="income"?"badge-income":"badge-expense"}">${tx.type==="income"?"수입":"지출"}</span></td>
+      <td class="right">${formatNumber(tx.amount)} 원</td>
+      <td><span class="badge ${tx.status==="done"?"badge-done":"badge-open"}">${tx.status==="receivable"?"미수금":tx.status==="payable"?"미지급금":"완료"}</span></td>
+      <td>${tx.category||""}</td>
+      <td>${tx.desc||""}</td>
+    `;
+    const tdAct=document.createElement("td");
+    const b=document.createElement("button");b.textContent="삭제";b.className="btn btn-danger";b.style.fontSize="10px";
+    b.onclick=()=>{transactions=transactions.filter(t=>t.id!==tx.id);renderAll();log("삭제 "+tx.id);};
+    tdAct.appendChild(b);tr.appendChild(tdAct);tb.appendChild(tr);
+  });
+}
+
+function createOrUpdate(chartRef,ctx,config){
+  if(chartRef){chartRef.data=config.data;chartRef.options=config.options;chartRef.update();return chartRef;}
+  return new Chart(ctx,config);
+}
+
+function renderCharts(){
+  const list=getFilteredTransactions().slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const monthly={};
+  list.forEach(tx=>{
+    const m=tx.date.slice(0,7);
+    monthly[m]??={income:0,expense:0};
+    if(tx.type==="income")monthly[m].income+=tx.amount;else monthly[m].expense+=tx.amount;
+  });
+  const months=Object.keys(monthly).sort();
+  const labels1=months.length?months:["데이터 없음"];
+  const incomeData=months.map(m=>monthly[m].income);
+  const expenseData=months.map(m=>monthly[m].expense);
+
+  chartIncomeExpense=createOrUpdate(
+    chartIncomeExpense,
+    document.getElementById("chartIncomeExpense").getContext("2d"),
+    {
+      type:"bar",
+      data:{labels:labels1,datasets:[{label:"수입",data:incomeData},{label:"지출",data:expenseData}]},
+      options:{plugins:{legend:{labels:{font:{size:10}}}},scales:{x:{ticks:{font:{size:9}}},y:{ticks:{font:{size:9}}}}}
+    }
+  );
+
+  const cat={};
+  list.forEach(tx=>{
+    if(tx.type!=="expense")return;
+    const c=tx.category||"기타";
+    cat[c]=(cat[c]||0)+tx.amount;
+  });
+  const catNames=Object.keys(cat);
+  const labels2=catNames.length?catNames:["지출 없음"];
+  const data2=catNames.map(k=>cat[k]);
+
+  chartExpenseCategory=createOrUpdate(
+    chartExpenseCategory,
+    document.getElementById("chartExpenseCategory").getContext("2d"),
+    {
+      type:"doughnut",
+      data:{labels:labels2,datasets:[{data:data2}]},
+      options:{plugins:{legend:{position:"bottom",labels:{font:{size:9}}}}}
+    }
+  );
+
+  let cum=0,labels3=[],data3=[];
+  months.forEach(m=>{cum+=monthly[m].income-monthly[m].expense;labels3.push(m);data3.push(cum);});
+  if(!months.length){labels3=["데이터 없음"];data3=[0];}
+
+  chartCashFlow=createOrUpdate(
+    chartCashFlow,
+    document.getElementById("chartCashFlow").getContext("2d"),
+    {
+      type:"line",
+      data:{labels:labels3,datasets:[{label:"누적 잔액",data:data3,tension:0.2}]},
+      options:{plugins:{legend:{labels:{font:{size:9}}}},scales:{x:{ticks:{font:{size:9}}},y:{ticks:{font:{size:9}}}}}
+    }
+  );
+}
+
+function addTransaction(){
+  const date=document.getElementById("dateInput").value;
+  const client=document.getElementById("clientInput").value.trim();
+  const type=document.getElementById("typeInput").value;
+  const amount=Number(document.getElementById("amountInput").value);
+  const status=document.getElementById("statusInput").value;
+  const method=document.getElementById("methodInput").value;
+  const category=document.getElementById("categoryInput").value;
+  const desc=document.getElementById("descInput").value.trim();
+
+  if(!date||!client||!type||!amount){log("추가 실패 — 날짜·거래처·구분·금액 필수");return;}
+  if(amount<=0){log("추가 실패 — 금액 0보다 커야 함");return;}
+
+  transactions.push({id:Date.now().toString(),date,client,type,amount,status,method,category,desc});
+  renderAll(); log("거래 추가: "+date+" / "+client+" / "+formatNumber(amount));
+  document.getElementById("amountInput").value="";
+  document.getElementById("descInput").value="";
+}
+
+function resetForm(){
+  document.getElementById("clientInput").value="";
+  document.getElementById("typeInput").value="income";
+  document.getElementById("amountInput").value="";
+  document.getElementById("statusInput").value="done";
+  document.getElementById("methodInput").value="";
+  document.getElementById("categoryInput").value="";
+  document.getElementById("descInput").value="";
+  document.getElementById("dateInput").value=todayStr();
+  log("입력 초기화");
+}
+
+function clearAll(){
+  transactions=[]; renderAll(); log("전체 삭제");
+}
+
+function loadSample(){
+  transactions=[
+    {id:"s1",date:"2025-01-05",client:"KITECH",type:"income",amount:3000000,status:"done",method:"bank",category:"report-sale",desc:"보고서 A 납품"},
+    {id:"s2",date:"2025-01-10",client:"KITECH",type:"income",amount:2000000,status:"receivable",method:"bank",category:"report-sale",desc:"보고서 잔금"},
+    {id:"s3",date:"2025-01-15",client:"KIST",type:"income",amount:1500000,status:"done",method:"bank",category:"service",desc:"컨설팅"},
+    {id:"s4",date:"2025-01-20",client:"사무실",type:"expense",amount:1000000,status:"payable",method:"bank",category:"rent",desc:"임대료"},
+    {id:"s5",date:"2025-01-22",client:"직원",type:"expense",amount:1200000,status:"done",method:"bank",category:"salary",desc:"급여"},
+    {id:"s6",date:"2025-01-25",client:"국세청",type:"expense",amount:800000,status:"done",method:"bank",category:"tax",desc:"부가세"}
+  ];
+  clearFilters(); renderAll(); log("샘플 데이터 로드");
+}
+
+function renderAll(){
+  updateClientFilterOptions();
+  renderKPI();
+  renderTable();
+  renderCharts();
+}
+
+window.onload=()=>{
+  document.getElementById("dateInput").value=todayStr();
+  document.getElementById("applyFilterBtn").onclick=applyFilters;
+  document.getElementById("clearFilterBtn").onclick=clearFilters;
+  document.getElementById("sampleTestBtn").onclick=loadSample;
+  document.getElementById("addBtn").onclick=addTransaction;
+  document.getElementById("resetFormBtn").onclick=resetForm;
+  document.getElementById("clearAllBtn").onclick=clearAll;
+  renderAll();
+  log("WIC 재정·재무 대시보드 v1.1 초기화 완료");
+};
+</script>
+</body>
+</html>
