@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>10번 도구 · 재무 회계 프로그램 · WIC Finance & Accounting</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg-main: #f5f7fb;
+      --bg-card: #ffffff;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --border-soft: #e2e8f0;
+      --text-main: #0f172a;
+      --text-soft: #64748b;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --shadow-soft: 0 8px 20px rgba(15, 23, 42, 0.08);
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --radius-pill: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+      "Noto Sans KR", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      background: radial-gradient(circle at top left, #eff6ff 0, #f9fafb 45%, #e5ecff 100%);
+      color: var(--text-main);
+    }
+
+    .app-shell {
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .title-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .title-row h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 11px;
+      background: rgba(37, 99, 235, 0.08);
+      color: #1d4ed8;
+    }
+
+    .tag-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #1d4ed8;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-soft);
+    }
+
+    .pill-info {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--text-soft);
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      background: rgba(148, 163, 184, 0.16);
+    }
+
+    .pill-info strong {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 960px) {
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+      padding: 16px 18px 18px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .card-subtitle {
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-top: 2px;
+    }
+
+    .chip {
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      font-size: 10px;
+      color: var(--text-soft);
+      border: 1px dashed rgba(148, 163, 184, 0.8);
+      white-space: nowrap;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-soft);
+      margin-bottom: 6px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 10px;
+    }
+
+    .form-row {
+      margin-bottom: 8px;
+    }
+
+    .form-row.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-bottom: 2px;
+    }
+
+    label span.req {
+      color: #dc2626;
+      margin-left: 2px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      padding: 6px 9px;
+      font-size: 12px;
+      outline: none;
+      background: #f9fafb;
+      color: var(--text-main);
+      transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="date"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
+      background: #ffffff;
+    }
+
+    textarea {
+      min-height: 52px;
+      resize: vertical;
+    }
+
+    .inline-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .inline-row small {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: none;
+      border-radius: var(--radius-pill);
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease, color 0.12s ease;
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 6px 14px rgba(37, 99, 235, 0.28);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 3px 8px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn.secondary {
+      background: #e5e7eb;
+      color: #111827;
+      box-shadow: none;
+    }
+
+    .btn.danger {
+      background: rgba(220, 38, 38, 0.96);
+      box-shadow: 0 6px 14px rgba(220, 38, 38, 0.3);
+      color: #f9fafb;
+    }
+
+    .btn.small {
+      padding: 4px 10px;
+      font-size: 10px;
+    }
+
+    .btn-ghost {
+      border-radius: var(--radius-pill);
+      border: 1px dashed rgba(148, 163, 184, 0.9);
+      background: transparent;
+      color: var(--text-soft);
+      font-size: 10px;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(148, 163, 184, 0.08);
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      background: var(--accent-soft);
+      color: #1d4ed8;
+    }
+
+    .badge-soft {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      background: rgba(148, 163, 184, 0.16);
+      color: var(--text-soft);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 640px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .summary-item {
+      border-radius: 12px;
+      padding: 8px 9px;
+      background: #f9fafb;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .summary-label {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .summary-value {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .summary-helper {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .summary-value.positive {
+      color: var(--success);
+    }
+
+    .summary-value.negative {
+      color: var(--danger);
+    }
+
+    .table-wrapper {
+      margin-top: 6px;
+      max-height: 320px;
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      overflow: hidden;
+      background: #f9fafb;
+    }
+
+    .table-header {
+      display: grid;
+      grid-template-columns: 90px 64px 1.1fr 1.2fr 0.9fr 0.7fr 0.9fr 70px;
+      gap: 6px;
+      padding: 6px 8px;
+      font-size: 11px;
+      background: rgba(226, 232, 240, 0.85);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .table-body {
+      max-height: 280px;
+      overflow-y: auto;
+      font-size: 11px;
+    }
+
+    .table-row {
+      display: grid;
+      grid-template-columns: 90px 64px 1.1fr 1.2fr 0.9fr 0.7fr 0.9fr 70px;
+      gap: 6px;
+      padding: 5px 8px;
+      align-items: center;
+      border-top: 1px solid rgba(226, 232, 240, 0.7);
+    }
+
+    .table-row:nth-child(even) {
+      background: rgba(249, 250, 251, 0.9);
+    }
+
+    .table-cell {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .table-cell.amount {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .table-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .pill-type-sales {
+      background: rgba(22, 163, 74, 0.1);
+      color: #15803d;
+      border-radius: var(--radius-pill);
+      padding: 1px 6px;
+      font-size: 10px;
+      text-align: center;
+    }
+
+    .pill-type-purchase {
+      background: rgba(220, 38, 38, 0.07);
+      color: #b91c1c;
+      border-radius: var(--radius-pill);
+      padding: 1px 6px;
+      font-size: 10px;
+      text-align: center;
+    }
+
+    .filters-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+
+    .filters-row > * {
+      flex: 1 1 120px;
+    }
+
+    .filters-row .filter-small {
+      flex: 0 0 110px;
+    }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+    }
+
+    .status-dot.offline {
+      background: #6b7280;
+    }
+
+    .log-box {
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px dashed var(--border-soft);
+      background: #f9fafb;
+      padding: 6px 8px;
+      font-size: 11px;
+      max-height: 130px;
+      overflow-y: auto;
+      white-space: pre-line;
+    }
+
+    .muted {
+      color: var(--text-soft);
+    }
+
+    .badge-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 7px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      font-size: 10px;
+      color: var(--text-soft);
+    }
+
+    .badge-outline strong {
+      color: var(--text-main);
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <header>
+    <div class="title-row">
+      <h1>10번 도구 · 재무 회계 프로그램</h1>
+      <span class="tag">
+        <span class="tag-dot"></span>
+        WIC Finance · Local-only · Safe DOM
+      </span>
+    </div>
+    <div class="subtitle">
+      WIC의 월별 매출·매입·부가세 흐름을 한 화면에서 정리하고, 간단한 현금흐름/이익 요약을 확인하는 모듈입니다.
+    </div>
+    <div class="inline-row">
+      <span class="pill-info">
+        <strong>v1.0</strong>&nbsp;· 브라우저 localStorage 저장 · 서버/자동이체 없음
+      </span>
+      <span class="badge-soft">※ 이 화면에 보이는 입력창·버튼만 동작합니다.</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- 왼쪽: 기본 설정 + 거래 입력 -->
+    <section class="card" aria-label="기본 설정 및 거래 입력">
+      <div class="card-header">
+        <div>
+          <div class="card-title">① 기본 정보 &amp; 안전 모드</div>
+          <div class="card-subtitle">WIC / 개인 구분과 부가세, 통화 단위를 먼저 정리합니다.</div>
+        </div>
+        <span class="chip">Config · Local-only</span>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="profileType">사용 프로필<span class="req">*</span></label>
+          <select id="profileType">
+            <option value="wic">WIC 사업장</option>
+            <option value="personal">개인 재무</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="currencyUnit">표시 단위<span class="req">*</span></label>
+          <select id="currencyUnit">
+            <option value="won">원</option>
+            <option value="thousand">천원</option>
+            <option value="tenThousand">만원</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="vatRate">부가세율 (%)<span class="req">*</span></label>
+          <input type="number" id="vatRate" min="0" step="0.1" value="10" />
+        </div>
+        <div class="form-row">
+          <label for="bookMonth">기본 기준월</label>
+          <input type="month" id="bookMonth" />
+        </div>
+        <div class="form-row full">
+          <label>안전 모드</label>
+          <div class="inline-row">
+            <span class="badge-outline">
+              <strong>ON</strong> · 자동 이체/투자 실행 없음, 숫자 계산만
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <hr style="border:none;border-top:1px solid rgba(226,232,240,0.9);margin:12px 0 10px;" />
+
+      <div class="card-header" style="margin-bottom:6px;">
+        <div>
+          <div class="card-title">② 거래 입력</div>
+          <div class="card-subtitle">매출·매입, 부가세 포함 여부를 한 번에 기록합니다.</div>
+        </div>
+        <span class="chip">Entry · Single row</span>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="txDate">날짜<span class="req">*</span></label>
+          <input type="date" id="txDate" />
+        </div>
+        <div class="form-row">
+          <label for="txType">구분<span class="req">*</span></label>
+          <select id="txType">
+            <option value="sale">매출</option>
+            <option value="purchase">매입</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="txCategory">항목 (카테고리)<span class="req">*</span></label>
+          <input type="text" id="txCategory" placeholder="예: 보고서 판매 / 인쇄비 / 번역비" />
+        </div>
+        <div class="form-row">
+          <label for="txPartner">거래처 / 고객</label>
+          <input type="text" id="txPartner" placeholder="예: KIST / 후지경제 / SK 스페셜티" />
+        </div>
+        <div class="form-row">
+          <label for="txDescription">상세 내용</label>
+          <input type="text" id="txDescription" placeholder="예: 후지경제 불소계 가스 보고서 납품" />
+        </div>
+        <div class="form-row">
+          <label for="txAmount">금액 (부가세 포함/제외 선택)<span class="req">*</span></label>
+          <input type="number" id="txAmount" min="0" step="1" placeholder="예: 1200000" />
+        </div>
+        <div class="form-row">
+          <label for="txVatIncluded">부가세 처리</label>
+          <select id="txVatIncluded">
+            <option value="included">부가세 포함 금액</option>
+            <option value="excluded">부가세 별도 (공급가)</option>
+            <option value="none">비과세 / 면세</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="txTags">태그 (쉼표 구분)</label>
+          <input type="text" id="txTags" placeholder="예: 후지경제, 전자입찰, 카드결제" />
+        </div>
+        <div class="form-row full">
+          <label for="txNote">내부 메모</label>
+          <textarea id="txNote" placeholder="예: 선입금, 발행사 정산 예정, 카드수수료 포함 여부 메모"></textarea>
+        </div>
+      </div>
+
+      <div class="inline-row" style="margin-top:4px;">
+        <button class="btn small" id="btnAddTx">거래 추가</button>
+        <button class="btn secondary small" id="btnClearForm">입력 값 지우기</button>
+        <small>※ 필수 항목(날짜, 구분, 항목, 금액)이 비어 있으면 추가되지 않습니다.</small>
+      </div>
+    </section>
+
+    <!-- 오른쪽 상단: 요약 대시보드 -->
+    <section class="card" aria-label="요약 대시보드 및 필터">
+      <div class="card-header">
+        <div>
+          <div class="card-title">③ 요약 대시보드</div>
+          <div class="card-subtitle">선택된 기간 기준으로 매출·매입·부가세·순이익을 요약합니다.</div>
+        </div>
+        <span class="chip">Dashboard · Read-only</span>
+      </div>
+
+      <div class="section-label">필터</div>
+      <div class="filters-row">
+        <div class="filter-small">
+          <label for="filterMonth">기간 (월)</label>
+          <input type="month" id="filterMonth" />
+        </div>
+        <div class="filter-small">
+          <label for="filterType">구분</label>
+          <select id="filterType">
+            <option value="all">전체</option>
+            <option value="sale">매출만</option>
+            <option value="purchase">매입만</option>
+          </select>
+        </div>
+        <div>
+          <label for="filterKeyword">검색 (항목/거래처/내용/태그)</label>
+          <input type="text" id="filterKeyword" placeholder="예: 후지경제 / 카드 / SK" />
+        </div>
+      </div>
+
+      <div class="inline-row" style="margin-bottom:4px;">
+        <button class="btn secondary small" id="btnResetFilter">필터 초기화</button>
+        <small>필터를 바꾸면 아래 요약과 목록이 바로 다시 계산됩니다.</small>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="summary-label">총 매출</div>
+          <div id="sumSales" class="summary-value positive">-</div>
+          <div class="summary-helper" id="sumSalesCount">건수: 0건</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">총 매입</div>
+          <div id="sumPurchases" class="summary-value negative">-</div>
+          <div class="summary-helper" id="sumPurchasesCount">건수: 0건</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">순이익 (매출-매입)</div>
+          <div id="netProfit" class="summary-value">-</div>
+          <div class="summary-helper" id="netProfitHelper">-</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">부가세 합계</div>
+          <div id="sumVat" class="summary-value">-</div>
+          <div class="summary-helper" id="sumVatHelper">과세 거래 기준</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">평균 거래 금액</div>
+          <div id="avgAmount" class="summary-value">-</div>
+          <div class="summary-helper" id="avgAmountHelper">필터 반영</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">거래 건수</div>
+          <div id="txCount" class="summary-value">0건</div>
+          <div class="summary-helper" id="txCountHelper">필터 반영</div>
+        </div>
+      </div>
+
+      <div class="status-bar">
+        <div class="status-dot offline"></div>
+        <span>서버 통신 없음 · 숫자 계산 및 요약만 제공</span>
+      </div>
+    </section>
+  </div>
+
+  <!-- 아래: 거래 목록 + 로그 -->
+  <div class="grid" style="margin-bottom:8px;">
+    <section class="card" aria-label="거래 목록">
+      <div class="card-header">
+        <div>
+          <div class="card-title">④ 거래 목록</div>
+          <div class="card-subtitle">
+            필터와 정렬 없이, 입력한 순서대로 단순히 쌓이는 리스트입니다.
+          </div>
+        </div>
+        <span class="chip">List · LocalStorage</span>
+      </div>
+
+      <div class="inline-row" style="margin-bottom:4px;">
+        <span class="badge-soft" id="listInfo">등록된 거래: 0건</span>
+        <button class="btn-ghost" id="btnSortByDate">날짜순 정렬</button>
+        <button class="btn-ghost" id="btnSortByType">구분순 정렬</button>
+      </div>
+
+      <div class="table-wrapper">
+        <div class="table-header">
+          <div>날짜</div>
+          <div>구분</div>
+          <div>항목</div>
+          <div>거래처/내용</div>
+          <div>금액</div>
+          <div>부가세</div>
+          <div>태그</div>
+          <div style="text-align:right;">작업</div>
+        </div>
+        <div class="table-body" id="txTableBody">
+          <!-- 행 생성 영역 -->
+        </div>
+      </div>
+    </section>
+
+    <section class="card" aria-label="로그 및 저장 상태">
+      <div class="card-header">
+        <div>
+          <div class="card-title">⑤ 로그 · 저장 상태</div>
+          <div class="card-subtitle">
+            최근 변경 기록과 localStorage 저장 상태를 확인합니다.
+          </div>
+        </div>
+        <span class="chip">Log · State</span>
+      </div>
+
+      <div class="inline-row">
+        <button class="btn small" id="btnSaveNow">지금 상태 저장</button>
+        <button class="btn secondary small" id="btnReload">화면 새로고침</button>
+        <button class="btn danger small" id="btnClearAll">전체 초기화</button>
+      </div>
+
+      <div class="status-bar">
+        <span class="badge" id="saveStatus">저장 상태: 초기화</span>
+        <span class="muted" id="lastSavedAt">마지막 저장: -</span>
+      </div>
+
+      <div class="section-label" style="margin-top:8px;">최근 로그</div>
+      <div class="log-box" id="logBox">
+        [안내] 아직 기록된 로그가 없습니다. 거래를 추가하거나 삭제하면 이곳에 표시됩니다.
+      </div>
+
+      <div class="section-label" style="margin-top:8px;">실행 규칙</div>
+      <div class="muted" style="font-size:11px;">
+        · 서버 통신 없음 · 이 화면에 보이는 입력창, 버튼만 동작합니다.<br />
+        · 모든 데이터는 이 브라우저의 <strong>localStorage</strong>에만 저장됩니다.<br />
+        · 다른 PC나 브라우저에서는 새로 입력해야 합니다.
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const STORAGE_KEY = "wic_finance_tool_v1";
+
+  /** @type {{config:{profileType:string,currencyUnit:string,vatRate:number,bookMonth:string},txs:Array}} */
+  let state = {
+    config: {
+      profileType: "wic",
+      currencyUnit: "won",
+      vatRate: 10,
+      bookMonth: ""
+    },
+    txs: []
+  };
+
+  // 요소 찾기 (최소 1회만)
+  const el = {
+    profileType: document.getElementById("profileType"),
+    currencyUnit: document.getElementById("currencyUnit"),
+    vatRate: document.getElementById("vatRate"),
+    bookMonth: document.getElementById("bookMonth"),
+
+    txDate: document.getElementById("txDate"),
+    txType: document.getElementById("txType"),
+    txCategory: document.getElementById("txCategory"),
+    txPartner: document.getElementById("txPartner"),
+    txDescription: document.getElementById("txDescription"),
+    txAmount: document.getElementById("txAmount"),
+    txVatIncluded: document.getElementById("txVatIncluded"),
+    txTags: document.getElementById("txTags"),
+    txNote: document.getElementById("txNote"),
+
+    btnAddTx: document.getElementById("btnAddTx"),
+    btnClearForm: document.getElementById("btnClearForm"),
+
+    filterMonth: document.getElementById("filterMonth"),
+    filterType: document.getElementById("filterType"),
+    filterKeyword: document.getElementById("filterKeyword"),
+    btnResetFilter: document.getElementById("btnResetFilter"),
+
+    sumSales: document.getElementById("sumSales"),
+    sumSalesCount: document.getElementById("sumSalesCount"),
+    sumPurchases: document.getElementById("sumPurchases"),
+    sumPurchasesCount: document.getElementById("sumPurchasesCount"),
+    netProfit: document.getElementById("netProfit"),
+    netProfitHelper: document.getElementById("netProfitHelper"),
+    sumVat: document.getElementById("sumVat"),
+    sumVatHelper: document.getElementById("sumVatHelper"),
+    avgAmount: document.getElementById("avgAmount"),
+    avgAmountHelper: document.getElementById("avgAmountHelper"),
+    txCount: document.getElementById("txCount"),
+    txCountHelper: document.getElementById("txCountHelper"),
+
+    listInfo: document.getElementById("listInfo"),
+    txTableBody: document.getElementById("txTableBody"),
+    btnSortByDate: document.getElementById("btnSortByDate"),
+    btnSortByType: document.getElementById("btnSortByType"),
+
+    btnSaveNow: document.getElementById("btnSaveNow"),
+    btnReload: document.getElementById("btnReload"),
+    btnClearAll: document.getElementById("btnClearAll"),
+    saveStatus: document.getElementById("saveStatus"),
+    lastSavedAt: document.getElementById("lastSavedAt"),
+    logBox: document.getElementById("logBox")
+  };
+
+  function formatNumber(num) {
+    if (isNaN(num)) return "-";
+    const s = Math.round(num).toString();
+    return s.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  function parseNumber(value) {
+    if (!value && value !== 0) return NaN;
+    const s = String(value).replace(/,/g, "").trim();
+    if (!s) return NaN;
+    const n = Number(s);
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  function nowTimeString() {
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mm = String(d.getMinutes()).padStart(2, "0");
+    const ss = String(d.getSeconds()).padStart(2, "0");
+    return hh + ":" + mm + ":" + ss;
+  }
+
+  function nowDateTimeString() {
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return yyyy + "-" + mm + "-" + dd + " " + nowTimeString();
+  }
+
+  function log(message) {
+    const time = nowTimeString();
+    const line = "[" + time + "] " + message;
+    if (!el.logBox.textContent || el.logBox.textContent.includes("아직 기록된 로그가 없습니다")) {
+      el.logBox.textContent = line;
+    } else {
+      el.logBox.textContent = line + "\n" + el.logBox.textContent;
+    }
+  }
+
+  function loadState() {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") {
+        if (parsed.config) state.config = Object.assign({}, state.config, parsed.config);
+        if (Array.isArray(parsed.txs)) state.txs = parsed.txs;
+      }
+    } catch (e) {
+      console.error("loadState error", e);
+    }
+  }
+
+  function saveState(manual) {
+    try {
+      const data = JSON.stringify(state);
+      window.localStorage.setItem(STORAGE_KEY, data);
+      const ts = nowDateTimeString();
+      el.saveStatus.textContent = manual ? "저장 상태: 수동 저장 완료" : "저장 상태: 자동 저장 완료";
+      el.lastSavedAt.textContent = "마지막 저장: " + ts;
+      if (manual) {
+        log("사용자가 상태를 수동 저장했습니다.");
+      }
+    } catch (e) {
+      console.error("saveState error", e);
+    }
+  }
+
+  function applyConfigToUI() {
+    el.profileType.value = state.config.profileType || "wic";
+    el.currencyUnit.value = state.config.currencyUnit || "won";
+    el.vatRate.value = Number.isFinite(state.config.vatRate) ? state.config.vatRate : 10;
+    el.bookMonth.value = state.config.bookMonth || "";
+  }
+
+  function updateConfigFromUI() {
+    state.config.profileType = el.profileType.value || "wic";
+    state.config.currencyUnit = el.currencyUnit.value || "won";
+    const vr = parseNumber(el.vatRate.value);
+    state.config.vatRate = Number.isFinite(vr) ? vr : 10;
+    state.config.bookMonth = el.bookMonth.value || "";
+    saveState(false);
+    renderAll();
+  }
+
+  function currentFilterMonth() {
+    const v = el.filterMonth.value;
+    if (!v) return null;
+    return v;
+  }
+
+  function txMatchesFilters(tx) {
+    const monthFilter = currentFilterMonth();
+    if (monthFilter) {
+      if (!tx.date || typeof tx.date !== "string") return false;
+      const prefix = monthFilter + "-";
+      if (!tx.date.startsWith(prefix)) return false;
+    }
+
+    const typeFilter = el.filterType.value || "all";
+    if (typeFilter === "sale" && tx.type !== "sale") return false;
+    if (typeFilter === "purchase" && tx.type !== "purchase") return false;
+
+    const keyword = (el.filterKeyword.value || "").trim().toLowerCase();
+    if (keyword) {
+      const target =
+        (tx.category || "") +
+        " " +
+        (tx.partner || "") +
+        " " +
+        (tx.description || "") +
+        " " +
+        (tx.tags || "");
+      if (!target.toLowerCase().includes(keyword)) return false;
+    }
+
+    return true;
+  }
+
+  function formatCurrencyForUnit(amount) {
+    if (!Number.isFinite(amount)) return "-";
+    let value = amount;
+    let suffix = "원";
+    const unit = state.config.currencyUnit || "won";
+    if (unit === "thousand") {
+      value = amount / 1000;
+      suffix = "천원";
+    } else if (unit === "tenThousand") {
+      value = amount / 10000;
+      suffix = "만원";
+    }
+    return formatNumber(value) + " " + suffix;
+  }
+
+  function computeVatAndNet(amount, vatRate, vatType) {
+    if (!Number.isFinite(amount)) {
+      return { net: 0, vat: 0, gross: 0 };
+    }
+    if (!Number.isFinite(vatRate) || vatRate <= 0) {
+      return { net: amount, vat: 0, gross: amount };
+    }
+
+    if (vatType === "included") {
+      const gross = amount;
+      const divisor = 1 + vatRate / 100;
+      const net = gross / divisor;
+      const vat = gross - net;
+      return { net, vat, gross };
+    } else if (vatType === "excluded") {
+      const net = amount;
+      const vat = net * (vatRate / 100);
+      const gross = net + vat;
+      return { net, vat, gross };
+    } else {
+      return { net: amount, vat: 0, gross: amount };
+    }
+  }
+
+  function renderList() {
+    const body = el.txTableBody;
+    while (body.firstChild) {
+      body.removeChild(body.firstChild);
+    }
+
+    const filtered = state.txs.filter(txMatchesFilters);
+    if (!filtered.length) {
+      const row = document.createElement("div");
+      row.className = "table-row";
+      const cell = document.createElement("div");
+      cell.className = "table-cell";
+      cell.style.gridColumn = "1 / -1";
+      cell.textContent = "표시할 거래가 없습니다. 위에서 거래를 추가해 주세요.";
+      row.appendChild(cell);
+      body.appendChild(row);
+    } else {
+      filtered.forEach(function (tx) {
+        const row = document.createElement("div");
+        row.className = "table-row";
+
+        const vatInfo = computeVatAndNet(
+          tx.amount,
+          state.config.vatRate,
+          tx.vatType
+        );
+
+        const dateCell = document.createElement("div");
+        dateCell.className = "table-cell";
+        dateCell.textContent = tx.date || "-";
+        row.appendChild(dateCell);
+
+        const typeCell = document.createElement("div");
+        typeCell.className = "table-cell";
+        const typeSpan = document.createElement("span");
+        if (tx.type === "sale") {
+          typeSpan.className = "pill-type-sales";
+          typeSpan.textContent = "매출";
+        } else {
+          typeSpan.className = "pill-type-purchase";
+          typeSpan.textContent = "매입";
+        }
+        typeCell.appendChild(typeSpan);
+        row.appendChild(typeCell);
+
+        const catCell = document.createElement("div");
+        catCell.className = "table-cell";
+        catCell.textContent = tx.category || "-";
+        row.appendChild(catCell);
+
+        const partnerCell = document.createElement("div");
+        partnerCell.className = "table-cell";
+        const txt =
+          (tx.partner || "") +
+          (tx.description ? " · " + tx.description : "");
+        partnerCell.textContent = txt || "-";
+        row.appendChild(partnerCell);
+
+        const amountCell = document.createElement("div");
+        amountCell.className = "table-cell amount";
+        amountCell.textContent = formatCurrencyForUnit(vatInfo.gross);
+        row.appendChild(amountCell);
+
+        const vatCell = document.createElement("div");
+        vatCell.className = "table-cell amount";
+        vatCell.textContent = vatInfo.vat ? formatCurrencyForUnit(vatInfo.vat) : "-";
+        row.appendChild(vatCell);
+
+        const tagCell = document.createElement("div");
+        tagCell.className = "table-cell";
+        tagCell.textContent = tx.tags || "";
+        row.appendChild(tagCell);
+
+        const actionsCell = document.createElement("div");
+        actionsCell.className = "table-cell table-actions";
+        const btnDel = document.createElement("button");
+        btnDel.className = "btn-ghost";
+        btnDel.textContent = "삭제";
+        btnDel.addEventListener("click", function () {
+          deleteTransaction(tx.id);
+        });
+        actionsCell.appendChild(btnDel);
+        row.appendChild(actionsCell);
+
+        body.appendChild(row);
+      });
+    }
+
+    const totalCount = state.txs.length;
+    el.listInfo.textContent = "등록된 거래: " + totalCount + "건";
+  }
+
+  function renderSummary() {
+    const filtered = state.txs.filter(txMatchesFilters);
+
+    let sales = 0;
+    let purchases = 0;
+    let salesCount = 0;
+    let purchaseCount = 0;
+    let vatSum = 0;
+    let totalAmount = 0;
+
+    filtered.forEach(function (tx) {
+      const vatInfo = computeVatAndNet(
+        tx.amount,
+        state.config.vatRate,
+        tx.vatType
+      );
+      if (tx.type === "sale") {
+        sales += vatInfo.gross;
+        salesCount += 1;
+      } else {
+        purchases += vatInfo.gross;
+        purchaseCount += 1;
+      }
+      vatSum += vatInfo.vat;
+      totalAmount += vatInfo.gross;
+    });
+
+    const net = sales - purchases;
+    const count = filtered.length;
+    const avg = count ? totalAmount / count : NaN;
+
+    el.sumSales.textContent = formatCurrencyForUnit(sales);
+    el.sumSalesCount.textContent = "건수: " + salesCount + "건";
+
+    el.sumPurchases.textContent = formatCurrencyForUnit(purchases);
+    el.sumPurchasesCount.textContent = "건수: " + purchaseCount + "건";
+
+    el.netProfit.textContent = formatCurrencyForUnit(net);
+    if (!count) {
+      el.netProfitHelper.textContent = "입력된 거래가 없습니다.";
+    } else if (net > 0) {
+      el.netProfitHelper.textContent = "필터 기준 흑자 상태입니다.";
+    } else if (net < 0) {
+      el.netProfitHelper.textContent = "필터 기준 적자 상태입니다.";
+    } else {
+      el.netProfitHelper.textContent = "필터 기준 손익분기점 수준입니다.";
+    }
+
+    el.sumVat.textContent = formatCurrencyForUnit(vatSum);
+    el.sumVatHelper.textContent = "과세 거래의 부가세 총합입니다.";
+
+    el.avgAmount.textContent = Number.isFinite(avg)
+      ? formatCurrencyForUnit(avg)
+      : "-";
+    el.avgAmountHelper.textContent = count
+      ? "거래 1건당 평균 금액입니다."
+      : "거래가 없어서 계산할 수 없습니다.";
+
+    el.txCount.textContent = count + "건";
+    el.txCountHelper.textContent = "필터 기준 거래 건수입니다.";
+
+    if (net > 0) {
+      el.netProfit.classList.add("positive");
+      el.netProfit.classList.remove("negative");
+    } else if (net < 0) {
+      el.netProfit.classList.add("negative");
+      el.netProfit.classList.remove("positive");
+    } else {
+      el.netProfit.classList.remove("positive");
+      el.netProfit.classList.remove("negative");
+    }
+  }
+
+  function renderAll() {
+    renderSummary();
+    renderList();
+  }
+
+  function deleteTransaction(id) {
+    const before = state.txs.length;
+    state.txs = state.txs.filter(function (tx) {
+      return tx.id !== id;
+    });
+    const after = state.txs.length;
+    if (after < before) {
+      log("거래 1건을 삭제했습니다. (id=" + id + ")");
+      saveState(false);
+      renderAll();
+    }
+  }
+
+  function addTransaction() {
+    const date = el.txDate.value;
+    const type = el.txType.value;
+    const category = (el.txCategory.value || "").trim();
+    const amount = parseNumber(el.txAmount.value);
+
+    if (!date || !type || !category || !Number.isFinite(amount) || amount <= 0) {
+      log("필수 항목이 비어 있어서 거래를 추가하지 못했습니다.");
+      return;
+    }
+
+    const partner = (el.txPartner.value || "").trim();
+    const description = (el.txDescription.value || "").trim();
+    const vatType = el.txVatIncluded.value || "included";
+    const tags = (el.txTags.value || "").trim();
+    const note = (el.txNote.value || "").trim();
+
+    const tx = {
+      id: Date.now().toString() + "_" + Math.random().toString(16).slice(2),
+      date: date,
+      type: type,
+      category: category,
+      partner: partner,
+      description: description,
+      amount: amount,
+      vatType: vatType,
+      tags: tags,
+      note: note
+    };
+
+    state.txs.push(tx);
+    log("새 거래를 추가했습니다. (" + (type === "sale" ? "매출" : "매입") + ", " + category + ")");
+    saveState(false);
+    renderAll();
+    clearFormAfterAdd();
+  }
+
+  function clearFormAfterAdd() {
+    el.txCategory.value = "";
+    el.txPartner.value = "";
+    el.txDescription.value = "";
+    el.txAmount.value = "";
+    el.txTags.value = "";
+    el.txNote.value = "";
+  }
+
+  function clearFormAll() {
+    el.txDate.value = "";
+    el.txType.value = "sale";
+    el.txCategory.value = "";
+    el.txPartner.value = "";
+    el.txDescription.value = "";
+    el.txAmount.value = "";
+    el.txVatIncluded.value = "included";
+    el.txTags.value = "";
+    el.txNote.value = "";
+  }
+
+  function resetFilters() {
+    el.filterMonth.value = "";
+    el.filterType.value = "all";
+    el.filterKeyword.value = "";
+    renderAll();
+  }
+
+  function clearAllData() {
+    if (!window.confirm("정말로 모든 데이터를 초기화할까요? 이 브라우저에 저장된 재무 데이터가 모두 삭제됩니다.")) {
+      return;
+    }
+    state.txs = [];
+    saveState(false);
+    renderAll();
+    log("모든 데이터를 초기화했습니다.");
+  }
+
+  function sortByDate() {
+    state.txs.sort(function (a, b) {
+      const da = a.date || "";
+      const db = b.date || "";
+      if (da < db) return -1;
+      if (da > db) return 1;
+      return 0;
+    });
+    saveState(false);
+    renderAll();
+    log("날짜 기준으로 거래를 정렬했습니다.");
+  }
+
+  function sortByType() {
+    state.txs.sort(function (a, b) {
+      if (a.type === b.type) {
+        const da = a.date || "";
+        const db = b.date || "";
+        if (da < db) return -1;
+        if (da > db) return 1;
+        return 0;
+      }
+      return a.type === "sale" ? -1 : 1;
+    });
+    saveState(false);
+    renderAll();
+    log("구분(매출·매입) 기준으로 거래를 정렬했습니다.");
+  }
+
+  function initDefaultFilterMonth() {
+    if (state.txs.length) {
+      const last = state.txs[state.txs.length - 1];
+      if (last.date && typeof last.date === "string" && last.date.length >= 7) {
+        el.filterMonth.value = last.date.slice(0, 7);
+      }
+    } else if (state.config.bookMonth) {
+      el.filterMonth.value = state.config.bookMonth;
+    } else {
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      el.filterMonth.value = yyyy + "-" + mm;
+    }
+  }
+
+  function attachEvents() {
+    el.profileType.addEventListener("change", updateConfigFromUI);
+    el.currencyUnit.addEventListener("change", updateConfigFromUI);
+    el.vatRate.addEventListener("input", updateConfigFromUI);
+    el.bookMonth.addEventListener("change", updateConfigFromUI);
+
+    el.btnAddTx.addEventListener("click", addTransaction);
+    el.btnClearForm.addEventListener("click", clearFormAll);
+
+    el.filterMonth.addEventListener("change", renderAll);
+    el.filterType.addEventListener("change", renderAll);
+    el.filterKeyword.addEventListener("input", renderAll);
+    el.btnResetFilter.addEventListener("click", function () {
+      resetFilters();
+      log("필터를 초기화했습니다.");
+    });
+
+    el.btnSortByDate.addEventListener("click", sortByDate);
+    el.btnSortByType.addEventListener("click", sortByType);
+
+    el.btnSaveNow.addEventListener("click", function () {
+      saveState(true);
+    });
+
+    el.btnReload.addEventListener("click", function () {
+      window.location.reload();
+    });
+
+    el.btnClearAll.addEventListener("click", clearAllData);
+  }
+
+  function init() {
+    loadState();
+    applyConfigToUI();
+    attachEvents();
+    initDefaultFilterMonth();
+    renderAll();
+    el.saveStatus.textContent = "저장 상태: localStorage 로드 완료";
+    el.lastSavedAt.textContent = "마지막 저장: -";
+    log("재무 회계 프로그램이 준비되었습니다.");
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
